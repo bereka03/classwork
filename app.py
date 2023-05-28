@@ -1,3 +1,7 @@
+#from flask import Flask, redirect, url_for, render_template, request, session
+import os
+os.system("pip install flask")
+os.system("pip install flask-sqlalchemy")
 from flask import Flask, redirect, url_for, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 
@@ -19,7 +23,8 @@ class Books(db.Model):
     def __str__(self):
         return f'Book title:{self.title}; Author: {self.author}; Price: {self.price}'
 
-
+with app.app_context():
+    db.create_all()
 # b1 = Books.query.first()
 # print(b1)
 # all_books = Books.query.all()
@@ -68,17 +73,18 @@ def logout():
 
 @app.route('/books', methods=['GET', 'POST'])
 def books():
-    if request.method=='POST':
-        t = request.form['title']
-        a = request.form['author']
-        p = request.form['price']
-        b1 = Books(title=t, author=a, price=float(p))
-        db.session.add(b1)
-        db.session.commit()
-        return 'მონაცემები დამატებულია'
+    with app.app_context():
+        if request.method=='POST':
+            t = request.form['title']
+            a = request.form['author']
+            p = request.form['price']
+            b1 = Books(title=t, author=a, price=float(p))
+            db.session.add(b1)
+            db.session.commit()
+            return 'მონაცემები დამატებულია'
 
-    return render_template('books.html')
+        return render_template('books.html')
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
