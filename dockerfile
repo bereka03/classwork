@@ -1,27 +1,36 @@
+# Use the official Python image as the base image
 FROM python:3.8-slim-buster
 
+# Set environment variables
+ENV FLASK_APP=app.py \
+    FLASK_RUN_HOST=0.0.0.0 \
+    FLASK_RUN_PORT=5000 \
+    APP_USER=flaskuser
 
-RUN apt-get update
-RUN apt-get install python3 python3-pip -y
+# Create a non-root user and group
+RUN groupadd -r $APP_USER && useradd -r -g $APP_USER $APP_USER
 
-ENV USER_ID=1000
-ENV GROUP_ID=1000
+# Set the working directory in the container
+WORKDIR /app
 
-RUN groupadd -g $GROUP_ID mygroup
-RUN useradd -u $USER_ID -g $GROUP_ID myuser
+# Copy the requirements.txt file to the working directory
+COPY requirements.txt .
 
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy the application code to the working directory
+COPY . .
 
-RUN pip3 install flask
-RUN pip3 install flask_sqlalchemy
+# Create the instance directory and set permissions
+RUN mkdir instance && chown -R $APP_USER:$APP_USER instance
+RUN chmod 777 instance
 
-RUN mkdir /app && mkdir /app/instance && chown myuser:mygroup /app/instance
+# Change to the non-root user
+USER $APP_USER
 
-USER myuser
-
-COPY ./app.py /opt/
-COPY ./templates /opt/templates
-
+# Expose the port that Flask app runs on
 EXPOSE 5000
 
-ENTRYPOINT ["python3", "/opt/app.py"]
+# Set the container's entrypoint command
+CMD ["flask", "run"]

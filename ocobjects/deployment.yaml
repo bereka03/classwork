@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+  namespace: gberekashvili
+  version: 1.0.1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+        version: 1.0.1
+      annotation:
+        sidecar.istio.io/inject: 'true' 
+    spec:
+      containers:
+        - name: flask-app
+          image: nexus.devops.tbc:9443/devops/gberekashvili/flaskapp:1.0.1
+          ports:
+            - containerPort: 5000
+          env:
+            - name: SECRET_KEY
+              value: Lecture14
+            - name: SQLALCHEMY_DATABASE_URI
+              value: sqlite:///books.sqlite 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app-svc
+  namespace: gberekashvili
+  labels: 
+    app: flask-app
+    version: 1.0.1
+spec:
+  selector:
+    app: flask-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000

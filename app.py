@@ -2,10 +2,9 @@
 import os
 os.system("pip install flask")
 os.system("pip install flask-sqlalchemy")
+
 from flask import Flask, redirect, url_for, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
-
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Lecture14'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.sqlite'

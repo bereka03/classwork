@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: booksdb-vs
+  namespace: gberekashvili
+spec:
+  gateways:
+    - booksdb-gateway
+  hosts:
+    - booksdb-gateway.apps.osh.devops.tbc
+  http:
+    - match:
+      - uri:
+          prefix: /
+      route:
+      - destination:
+          host: flask-app-svc
